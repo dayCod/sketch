@@ -34,7 +34,7 @@ class BlueprintService
                 ['name' => 'title', 'type' => 'string', 'nullable' => false],
                 ['name' => 'content', 'type' => 'text', 'nullable' => true],
             ],
-            'timestamps' => true,
+            'timestamps' => config('sketch.timestamps', true),
             'softDeletes' => $softDelete,
             'relationships' => [
                 [
@@ -52,15 +52,15 @@ class BlueprintService
             ? $parsedFilePath->file
             : $parsedFilePath->path.'/'.$parsedFilePath->file;
 
-        if (! is_dir(base_path("sketch/{$parsedFilePath->path}"))) {
-            mkdir(base_path("sketch/{$parsedFilePath->path}"), 0777, true);
+        if (! is_dir(config('sketch.blueprint_path')."/{$parsedFilePath->path}")) {
+            mkdir(config('sketch.blueprint_path')."/{$parsedFilePath->path}", 0777, true);
         }
 
-        if (file_exists(base_path("sketch/{$fullPath}.yaml"))) {
+        if (file_exists(config('sketch.blueprint_path')."/{$fullPath}.yaml")) {
             throw new FileException("{$fullPath}.yaml already exists!");
         }
 
-        file_put_contents(base_path("sketch/{$fullPath}.yaml"), Yaml::dump($data));
+        file_put_contents(config('sketch.blueprint_path')."/{$fullPath}.yaml", Yaml::dump($data));
 
         return $fullPath;
     }
