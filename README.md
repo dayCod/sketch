@@ -1,6 +1,6 @@
-<p align="center">
+<!-- <p align="center">
   <img src="https://github.com/dayCod/curtain/blob/main/art/curtain-logo.png" alt="Curtain Logo">
-</p>
+</p> -->
 
 <p align="center">
   <a href="https://packagist.org/packages/vendor/curtain"><img src="https://img.shields.io/packagist/v/vendor/curtain" alt="Latest Stable Version"></a>
