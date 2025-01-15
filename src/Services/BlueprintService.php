@@ -71,7 +71,7 @@ class BlueprintService
      * @param  string  $name  The file path string, potentially including directories.
      * @return object
      */
-    private function parseFilePath(string $name)
+    public function parseFilePath(string $name)
     {
         $segments = explode('/', $name);
 

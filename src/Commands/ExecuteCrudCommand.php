@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Daycode\Sketch\Commands;
 
+use Daycode\Sketch\Services\BlueprintService;
+use Daycode\Sketch\Services\CrudGeneratorService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class ExecuteCrudCommand extends Command
 {
@@ -25,8 +28,22 @@ class ExecuteCrudCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): void
+    public function handle(CrudGeneratorService $crudGeneratorService, BlueprintService $blueprintService): void
     {
-        //
+        try {
+            $parsedFilePath = $blueprintService->parseFilePath(name: Str::title($this->argument('model')));
+            $fullPath = is_null($parsedFilePath->path)
+                ? $parsedFilePath->file
+                : $parsedFilePath->path.'/'.$parsedFilePath->file;
+
+            $crudGeneratorService->generateEloquentModel([
+                'softDelete' => true,
+                'classname' => Str::studly($this->argument('model')),
+                'tableName' => Str::plural(Str::snake($this->argument('model'))),
+                'yamlPath' => config('sketch.blueprint_path')."/{$fullPath}.yaml",
+            ]);
+        } catch (\Exception $ex) {
+            $this->error($ex->getMessage());
+        }
     }
 }
