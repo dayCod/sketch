@@ -20,7 +20,6 @@ class MigrationService
      * @param  array  $fields  The list of fields to generate.
      * @param  bool  $timestamps  Whether to include timestamps in the migration.
      * @param  bool  $softDeletes  Whether to include soft deletes in the migration.
-     * @return string
      */
     public function generateFields(array $primaryKey, array $fields, bool $timestamps, bool $softDeletes): string
     {
@@ -40,11 +39,11 @@ class MigrationService
         }
 
         if ($timestamps) {
-            $output[] = "\$table->timestamps();";
+            $output[] = '$table->timestamps();';
         }
 
         if ($softDeletes) {
-            $output[] = "\$table->softDeletes();";
+            $output[] = '$table->softDeletes();';
         }
 
         return implode("\n            ", $output);
@@ -58,7 +57,6 @@ class MigrationService
      * singular of the related model name with "_id" appended to the end.
      *
      * @param  array  $relationships  The list of relationships to generate foreign key constraints for.
-     * @return string
      */
     public function generateForeignKeys(array $relationships): string
     {
@@ -70,10 +68,10 @@ class MigrationService
                 $onDelete = $relationship['onDelete'] ?? 'cascade';
 
                 $output[] = "\$table->foreign('{$relationship['foreignKey']}')"
-                    . "->references('{$relationship['ownerKey']}')"
-                    . "->on('".Str::snake(Str::plural($relationship['model']))."')"
-                    . "->onUpdate('{$onUpdate}')"
-                    . "->onDelete('{$onDelete}');";
+                    ."->references('{$relationship['ownerKey']}')"
+                    ."->on('".Str::snake(Str::plural($relationship['model']))."')"
+                    ."->onUpdate('{$onUpdate}')"
+                    ."->onDelete('{$onDelete}');";
             }
         }
 

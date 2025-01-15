@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Daycode\Sketch\Services;
 
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Symfony\Component\Yaml\Yaml;
-use Illuminate\Support\Facades\File;
 
 class CrudGeneratorService
 {
@@ -60,7 +60,7 @@ class CrudGeneratorService
 
     public function generateTableMigration(string $yamlPath): string
     {
-        if (!File::exists($yamlPath)) {
+        if (! File::exists($yamlPath)) {
             throw new \Exception("YAML file not found at path: {$yamlPath}");
         }
 
@@ -93,5 +93,4 @@ class CrudGeneratorService
 
         return $databasePath;
     }
-
 }

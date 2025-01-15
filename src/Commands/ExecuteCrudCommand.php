@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Daycode\Sketch\Commands;
 
+use Daycode\Sketch\Functions\Helper;
 use Daycode\Sketch\Services\BlueprintService;
 use Daycode\Sketch\Services\CrudGeneratorService;
 use Illuminate\Console\Command;
@@ -31,6 +32,8 @@ class ExecuteCrudCommand extends Command
     public function handle(CrudGeneratorService $crudGeneratorService, BlueprintService $blueprintService): void
     {
         try {
+            Helper::scanDirectoryByModelName(model: $this->argument('model'));
+
             $parsedFilePath = $blueprintService->parseFilePath(name: Str::title($this->argument('model')));
             $fullPath = is_null($parsedFilePath->path)
                 ? $parsedFilePath->file
