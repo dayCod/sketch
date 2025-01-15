@@ -36,12 +36,18 @@ class ExecuteCrudCommand extends Command
                 ? $parsedFilePath->file
                 : $parsedFilePath->path.'/'.$parsedFilePath->file;
 
-            $crudGeneratorService->generateEloquentModel([
+            // Generate Eloquent Model
+            $eloquentModelPath = $crudGeneratorService->generateEloquentModel([
                 'softDelete' => true,
                 'classname' => Str::studly($this->argument('model')),
                 'tableName' => Str::plural(Str::snake($this->argument('model'))),
                 'yamlPath' => config('sketch.blueprint_path')."/{$fullPath}.yaml",
             ]);
+
+            // Generate Migrations
+            $tableMigrationPath = $crudGeneratorService->generateTableMigration(yamlPath: config('sketch.blueprint_path')."/{$fullPath}.yaml");
+
+            $this->info("Model: {$eloquentModelPath} Migration: {$tableMigrationPath}");
         } catch (\Exception $ex) {
             $this->error($ex->getMessage());
         }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Daycode\Sketch\Services;
 
+use Illuminate\Support\Str;
+use Symfony\Component\Yaml\Yaml;
 use Illuminate\Support\Facades\File;
 
 class CrudGeneratorService
@@ -15,6 +17,7 @@ class CrudGeneratorService
      */
     public function __construct(
         protected ModelRelationshipService $modelRelationshipService,
+        protected MigrationService $migrationService,
     ) {}
 
     /**
@@ -54,4 +57,41 @@ class CrudGeneratorService
 
         return $modelPath;
     }
+
+    public function generateTableMigration(string $yamlPath): string
+    {
+        if (!File::exists($yamlPath)) {
+            throw new \Exception("YAML file not found at path: {$yamlPath}");
+        }
+
+        $yamlData = Yaml::parseFile($yamlPath);
+
+        $modelName = $yamlData['model'];
+        $primaryKey = $yamlData['primaryKey'];
+        $fields = $yamlData['fields'] ?? [];
+        $timestamps = $yamlData['timestamps'] ?? false;
+        $softDeletes = $yamlData['softDeletes'] ?? false;
+        $relationships = $yamlData['relationships'] ?? [];
+
+        // Generate components
+        $tableName = Str::snake(Str::plural($modelName));
+        $migrationFields = $this->migrationService->generateFields($primaryKey, $fields, $timestamps, $softDeletes);
+        $foreignKeys = $this->migrationService->generateForeignKeys($relationships);
+
+        // Load and replace stub
+        $stubPath = __DIR__.'/../../stubs/migration.stub';
+        $stubContent = File::get($stubPath);
+
+        $stubContent = str_replace(
+            ['{{tableName}}', '{{fields}}', '{{foreignKeys}}'],
+            [$tableName, $migrationFields, $foreignKeys],
+            $stubContent
+        );
+
+        $databasePath = database_path('migrations/'.date('Y_m_d_His').'_create_'.$tableName.'.php');
+        File::put($databasePath, $stubContent);
+
+        return $databasePath;
+    }
+
 }
