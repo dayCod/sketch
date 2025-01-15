@@ -19,14 +19,13 @@ class Helper
      * the path of the existing file. Otherwise, it returns the model name.
      *
      * @param  string|null  $model  The model name to check.
-     *
      * @return string
      *
      * @throws FileException
      */
     public static function scanDirectoryByModelName(?string $model)
     {
-        $model = Str::contains($model, '/') ? last(explode('/', $model)) : $model;
+        $model = Str::contains($model, '/') ? last(explode('/', (string) $model)) : $model;
 
         $listExistingModel = glob(base_path('app/Models/*.php'));
         $listExistingMigration = glob(database_path('migrations/*.php'));
