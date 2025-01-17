@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Daycode\Sketch\Services;
+namespace Daycode\Sketch;
 
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\Yaml\Yaml;
 
-class BlueprintService
+class Blueprint
 {
     /**
      * Creates a YAML file representing a model blueprint with the specified name.

@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Daycode\Sketch\Services;
+namespace Daycode\Sketch;
 
+use Daycode\Sketch\Services\MigrationService;
+use Daycode\Sketch\Services\ModelRelationshipService;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Symfony\Component\Yaml\Yaml;
 
-class CrudGeneratorService
+class Generator
 {
     /**
      * Constructor for CrudGeneratorService.
-     *
-     * @param  ModelRelationshipService  $modelRelationshipService  Service to handle model relationship parsing and generation.
      */
     public function __construct(
         protected ModelRelationshipService $modelRelationshipService,
@@ -34,7 +34,7 @@ class CrudGeneratorService
     public function generateEloquentModel(?array $stubs = [])
     {
         // Stubs to be replaced
-        $stubPath = __DIR__.'/../../stubs/Model.stub';
+        $stubPath = __DIR__.'/../stubs/model.stub';
         $stubContent = File::get($stubPath);
 
         // Parsing yaml file
@@ -79,7 +79,7 @@ class CrudGeneratorService
         $foreignKeys = $this->migrationService->generateForeignKeys($relationships);
 
         // Load and replace stub
-        $stubPath = __DIR__.'/../../stubs/migration.stub';
+        $stubPath = __DIR__.'/../stubs/migration.stub';
         $stubContent = File::get($stubPath);
 
         $stubContent = str_replace(
@@ -92,5 +92,19 @@ class CrudGeneratorService
         File::put($databasePath, $stubContent);
 
         return $databasePath;
+    }
+
+    public function generateController(string $model)
+    {
+        $modelName = $model;
+        $modelVariable = strtolower($modelName); // e.g., "post"
+        $stub = file_get_contents(__DIR__.'/../stubs/controller.stub');
+
+        // Replace placeholders
+        $stub = str_replace('{{modelName}}', $modelName, $stub);
+        $stub = str_replace('{{modelVariable}}', $modelVariable, $stub);
+
+        // Save the controller file
+        file_put_contents(app_path("Http/Controllers/{$modelName}Controller.php"), $stub);
     }
 }

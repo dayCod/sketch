@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Daycode\Sketch\Commands;
 
+use Daycode\Sketch\Blueprint;
 use Daycode\Sketch\Functions\Helper;
-use Daycode\Sketch\Services\BlueprintService;
-use Daycode\Sketch\Services\CrudGeneratorService;
+use Daycode\Sketch\Generator;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
@@ -29,18 +29,18 @@ class ExecuteCrudCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(CrudGeneratorService $crudGeneratorService, BlueprintService $blueprintService): void
+    public function handle(Generator $generator, Blueprint $blueprint): void
     {
         try {
             Helper::scanDirectoryByModelName(model: $this->argument('model'));
 
-            $parsedFilePath = $blueprintService->parseFilePath(name: Str::title($this->argument('model')));
+            $parsedFilePath = $blueprint->parseFilePath(name: Str::title($this->argument('model')));
             $fullPath = is_null($parsedFilePath->path)
                 ? $parsedFilePath->file
                 : $parsedFilePath->path.'/'.$parsedFilePath->file;
 
             // Generate Eloquent Model
-            $eloquentModelPath = $crudGeneratorService->generateEloquentModel([
+            $eloquentModelPath = $generator->generateEloquentModel([
                 'softDelete' => true,
                 'classname' => Str::studly($this->argument('model')),
                 'tableName' => Str::plural(Str::snake($this->argument('model'))),
@@ -48,7 +48,10 @@ class ExecuteCrudCommand extends Command
             ]);
 
             // Generate Migrations
-            $tableMigrationPath = $crudGeneratorService->generateTableMigration(yamlPath: config('sketch.blueprint_path')."/{$fullPath}.yaml");
+            $tableMigrationPath = $generator->generateTableMigration(yamlPath: config('sketch.blueprint_path')."/{$fullPath}.yaml");
+
+            // Generator Controllers
+            $generator->generateController(model: Str::studly($this->argument('model')));
 
             $this->info("Model: {$eloquentModelPath} Migration: {$tableMigrationPath}");
         } catch (\Exception $ex) {
