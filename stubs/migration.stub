@@ -10,25 +10,20 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('{{tableName}}', function (Blueprint $table) {
-            {{fields}}
-
-            {{foreignKeys}}
+        Schema::create('{{ table }}', function (Blueprint $table) {
+            {{ schema }}
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('{{tableName}}');
+        Schema::dropIfExists('{{ table }}');
     }
 };
+

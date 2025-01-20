@@ -6,24 +6,45 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default Blueprint Directory
+    | Output Path Configuration
     |--------------------------------------------------------------------------
     |
-    | The default location where the YAML blueprint will be saved.
-    | Developers can change this value as needed.
+    | This value determines where your generated files will be placed.
+    | By default, models will be placed in app/Models,
+    | migrations in database/migrations, and actions in app/Actions.
     |
     */
-    'blueprint_path' => resource_path('blueprints'),
+    'paths' => [
+        'models' => app_path('Models'),
+        'migrations' => database_path('migrations'),
+        'actions' => app_path('Actions'),
+        'requests' => app_path('Http/Requests'),
+    ],
 
     /*
     |--------------------------------------------------------------------------
-    | Default Timestamps
+    | Stub Path Configuration
     |--------------------------------------------------------------------------
     |
-    | Determines whether the model table will have created_at and updated_at columns
-    | by default. Can be changed via settings here.
+    | This value determines where your stub files are located.
+    | You can publish these stubs and modify them according to your needs.
     |
     */
-    'timestamps' => true,
+    'stubs' => [
+        'model' => __DIR__.'/../stubs/model.stub',
+        'migration' => __DIR__.'/../stubs/migration.stub',
+        'action' => __DIR__.'/../stubs/action.stub',
+        'request' => __DIR__.'/../stubs/form-request.stub',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Model Namespace
+    |--------------------------------------------------------------------------
+    |
+    | This value determines the default namespace for your models.
+    |
+    */
+    'model_namespace' => 'App\\Models',
 
 ];

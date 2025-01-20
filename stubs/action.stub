@@ -1,0 +1,52 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ model_namespace }}\{{ model }};
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+
+class {{ class }}
+{
+    /**
+     * Create a new {{ model }}.
+     *
+     * @param array $data
+     * @return {{ model }}
+     * @throws ValidationException
+     */
+    public function create(array $data): {{ model }}
+    {
+        $validated = Validator::make($data, $this->rules)->validate();
+
+        return {{ model }}::create($validated);
+    }
+
+    /**
+     * Update the specified {{ model }}.
+     *
+     * @param {{ model }} $model
+     * @param array $data
+     * @return {{ model }}
+     * @throws ValidationException
+     */
+    public function update({{ model }} $model, array $data): {{ model }}
+    {
+        $validated = Validator::make($data, $this->rules)->validate();
+
+        $model->update($validated);
+
+        return $model;
+    }
+
+    /**
+     * Delete the specified {{ model }}.
+     *
+     * @param {{ model }} $model
+     * @return bool
+     */
+    public function delete({{ model }} $model): bool
+    {
+        return $model->delete();
+    }
+}

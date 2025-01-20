@@ -2,6 +2,7 @@
 
 namespace Daycode\Sketch;
 
+use Daycode\Sketch\Facades\Sketch;
 use Illuminate\Support\ServiceProvider;
 
 class SketchServiceProvider extends ServiceProvider
@@ -11,16 +12,18 @@ class SketchServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Publish configuration
-        $this->publishes([
-            __DIR__.'/../config/sketch.php' => config_path('sketch.php'),
-        ], 'config');
-
         // Register artisan commands
         if ($this->app->runningInConsole()) {
             $this->commands([
-                \Daycode\Sketch\Commands\GenerateBlueprintFile::class
+                \Daycode\Sketch\Commands\GenerateBlueprintFile::class,
+                \Daycode\Sketch\Commands\SketchCommand::class,
             ]);
+
+            // Publish configuration
+            $this->publishes([
+                __DIR__.'/../config/sketch.php' => config_path('sketch.php'),
+                __DIR__.'/../stubs' => base_path('stubs/sketch'),
+            ], 'sketch');
         }
     }
 
@@ -30,7 +33,10 @@ class SketchServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(
-            __DIR__.'/../config/sketch.php', 'sketch'
+            __DIR__.'/../config/sketch.php',
+            'sketch'
         );
+
+        $this->app->singleton('sketch', fn ($app): \Daycode\Sketch\Facades\Sketch => new Sketch);
     }
 }

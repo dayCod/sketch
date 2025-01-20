@@ -2,31 +2,38 @@
 
 declare(strict_types=1);
 
-namespace App\Models;
+namespace {{ namespace }};
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-{{useSoftDeletes}}
+{{ useSoftDeletes }}
 
-class {{className}} extends Model
+class {{ class }} extends Model
 {
-    {{softDeletes}}
-
-    /**
-     * The table associated with the model.
-     *
-     * @var string|null
-     */
-    protected $table = '{{tableName}}';
+    use HasFactory;
+    {{ softDeletes }}
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
+     * @var array<int, string>
      */
-    protected $guarded = [];
+    protected $fillable = [
+        {{ fillable }}
+    ];
 
-    {{relationships}}
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        {{ casts }}
+    ];
+
+    {{ relationships }}
 }
+
