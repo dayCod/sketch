@@ -125,11 +125,11 @@ class ActionGenerator
      */
     protected function generateValidationRules(bool $isCreate): string
     {
-        return collect($this->schema['fields'])
+        $rules = collect($this->schema['fields'])
             ->map(function (array $field) use ($isCreate): string {
                 $rules = $this->getFieldRules($field, $isCreate);
 
-                return "            '{$field['name']}' => ['".implode("', '", $rules)."']";
+                return sprintf("            '%s' => ['%s']", $field['name'], implode("', '", $rules));
             })
             ->when(
                 ! empty($this->schema['relationships']),
@@ -138,6 +138,15 @@ class ActionGenerator
                 )
             )
             ->implode(",\n");
+
+        if (! empty($rules)) {
+            $rules = "\n".$rules."\n        ";
+        }
+
+        return sprintf(
+            'return [%s];',
+            $rules
+        );
     }
 
     /**
@@ -219,19 +228,16 @@ class ActionGenerator
     protected function generateRelationshipRules(bool $isCreate): Collection
     {
         return collect($this->schema['relationships'])
-            ->map(function ($relation) use ($isCreate): string {
+            ->map(function (array $relation) use ($isCreate): string {
                 $rules = ['exists:'.Str::snake(Str::pluralStudly($relation['model'])).',id'];
 
                 if ($isCreate) {
-                    $rules = array_merge(
-                        [$relation['nullable'] ?? false ? 'nullable' : 'required'],
-                        $rules
-                    );
+                    array_unshift($rules, $relation['nullable'] ?? false ? 'nullable' : 'required');
                 } else {
-                    $rules = array_merge(['sometimes', 'nullable'], $rules);
+                    array_unshift($rules, 'sometimes', 'nullable');
                 }
 
-                return "            '{$relation['foreignKey']}' => ['".implode("', '", $rules)."']";
+                return sprintf("            '%s' => ['%s']", $relation['foreignKey'], implode("', '", $rules));
             });
     }
 
@@ -260,8 +266,6 @@ class ActionGenerator
              */
             public function create(array \$data)
             {
-                \$validated = app({$this->schema['model']}CreateRequest::class)->validate(\$data);
-
                 return {$this->schema['model']}::create(\$validated);
             }
 
@@ -274,8 +278,6 @@ class ActionGenerator
              */
             public function update({$this->schema['model']} \$model, array \$data)
             {
-                \$validated = app({$this->schema['model']}UpdateRequest::class)->validate(\$data);
-
                 \$model->update(\$validated);
 
                 return \$model;

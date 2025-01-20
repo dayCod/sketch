@@ -192,14 +192,14 @@ class ModelGenerator
         $localKey = $relation['localKey'] ?? 'id';
 
         return <<<PHP
-            /**
+        /**
              * Get the {$method} associated with the {$this->schema['model']}.
              */
             public function {$method}()
             {
                 return \$this->hasOne({$relationClass}::class, '{$foreignKey}', '{$localKey}');
             }
-            PHP;
+        PHP;
     }
 
     protected function generateHasManyRelation(string $method, string $relationClass, array $relation): string
@@ -208,14 +208,14 @@ class ModelGenerator
         $localKey = $relation['localKey'] ?? 'id';
 
         return <<<PHP
-            /**
+        /**
              * Get the {$method} for the {$this->schema['model']}.
              */
             public function {$method}()
             {
                 return \$this->hasMany({$relationClass}::class, '{$foreignKey}', '{$localKey}');
             }
-            PHP;
+        PHP;
     }
 
     protected function generateWithPivot(array $columns): string

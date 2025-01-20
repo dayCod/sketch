@@ -19,7 +19,7 @@ class SketchCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'sketch:generate {--file= : The YAML file to process}';
+    protected $signature = 'sketch:generate {--file= : The YAML file to process} {--force : Force generate files even if they already exist}';
 
     /**
      * The console command description.
@@ -35,6 +35,7 @@ class SketchCommand extends Command
     {
         try {
             $file = $this->option('file');
+            $force = $this->option('force');
 
             if (empty($file)) {
                 $this->error('The file option is required.');
@@ -53,24 +54,41 @@ class SketchCommand extends Command
 
             // Generate Model
             $modelGenerator = new ModelGenerator(config('sketch'), $schema);
-            $modelContent = $modelGenerator->generate();
             $modelPath = $modelGenerator->getOutputPath();
-            file_put_contents($modelPath, $modelContent);
-            $this->info("Model generated: {$modelPath}");
+
+            if (File::exists($modelPath) && ! $force) {
+                $this->warn("Model file already exists: {$modelPath}");
+            } else {
+                $modelContent = $modelGenerator->generate();
+                file_put_contents($modelPath, $modelContent);
+                $this->info("Model generated: {$modelPath}");
+            }
 
             // Generate Migration
             $migrationGenerator = new MigrationGenerator(config('sketch'), $schema);
-            $migrationContent = $migrationGenerator->generate();
             $migrationPath = $migrationGenerator->getOutputPath();
-            file_put_contents($migrationPath, $migrationContent);
-            $this->info("Migration generated: {$migrationPath}");
+
+            $existingMigration = $this->findExistingMigration($schema['model']);
+
+            if ($existingMigration && ! $force) {
+                $this->warn("Migration file already exists: {$migrationPath}");
+            } else {
+                $migrationContent = $migrationGenerator->generate();
+                file_put_contents($migrationPath, $migrationContent);
+                $this->info("Migration generated: {$migrationPath}");
+            }
 
             // Generate Actions
             $actionGenerator = new ActionGenerator(config('sketch'), $schema);
-            $actionContent = $actionGenerator->generate();
             $actionPath = $actionGenerator->getOutputPath();
-            file_put_contents($actionPath, $actionContent);
-            $this->info("Actions generated: {$actionPath}");
+
+            if (File::exists($actionPath) && ! $force) {
+                $this->warn("Actions file already exists: {$actionPath}");
+            } else {
+                $actionContent = $actionGenerator->generate();
+                file_put_contents($actionPath, $actionContent);
+                $this->info("Actions generated: {$actionPath}");
+            }
 
             return self::SUCCESS;
         } catch (\Exception $e) {
@@ -78,6 +96,15 @@ class SketchCommand extends Command
 
             return self::FAILURE;
         }
+    }
+
+    protected function findExistingMigration(string $model): ?string
+    {
+        $table = str($model)->snake()->plural();
+        $pattern = database_path("migrations/*_create_{$table}_table.php");
+        $existing = glob($pattern);
+
+        return $existing === [] || $existing === false ? null : $existing[0];
     }
 
     protected function ensureDirectoriesExist(): void
