@@ -14,14 +14,14 @@ class GenerateBlueprintFile extends Command
      *
      * @var string
      */
-    protected $signature = 'sketch:generate {name} {--soft-delete}';
+    protected $signature = 'sketch:make-blueprint {name} {--soft-delete}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Generate YAML structure for a Laravel resource';
+    protected $description = 'Create Blueprint YAML structure for a Laravel resource';
 
     /**
      * Execute the console command.
