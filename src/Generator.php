@@ -94,7 +94,7 @@ class Generator
         return $databasePath;
     }
 
-    public function generateController(string $model)
+    public function generateController(string $model): void
     {
         $modelName = $model;
         $modelVariable = strtolower($modelName); // e.g., "post"
