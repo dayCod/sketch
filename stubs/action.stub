@@ -13,13 +13,10 @@ class {{ class }}
      *
      * @param array $data
      * @return {{ model }}
-     * @throws ValidationException
      */
     public function create(array $data): {{ model }}
     {
-        $validated = Validator::make($data, $this->rules)->validate();
-
-        return {{ model }}::create($validated);
+        return {{ model }}::create($data);
     }
 
     /**
@@ -28,13 +25,10 @@ class {{ class }}
      * @param {{ model }} $model
      * @param array $data
      * @return {{ model }}
-     * @throws ValidationException
      */
     public function update({{ model }} $model, array $data): {{ model }}
     {
-        $validated = Validator::make($data, $this->rules)->validate();
-
-        $model->update($validated);
+        $model->update($data);
 
         return $model;
     }
