@@ -19,8 +19,7 @@ class SketchServiceProvider extends ServiceProvider
         // Register artisan commands
         if ($this->app->runningInConsole()) {
             $this->commands([
-                \Daycode\Sketch\Commands\GenerateBlueprintFile::class,
-                \Daycode\Sketch\Commands\ExecuteCrudCommand::class,
+                \Daycode\Sketch\Commands\GenerateBlueprintFile::class
             ]);
         }
     }
