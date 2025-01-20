@@ -11,29 +11,17 @@
 
 ## Blueprint-Based CRUD Generator for Laravel
 
-Sketch is a powerful, easy-to-use package for rapidly generating CRUD functionality in Laravel applications. With **Sketch**, you can effortlessly define models, controllers, views, and routes, all based on a simple blueprint configuration. This package streamlines the development process and ensures consistency across your application.
+Sketch is a powerful, easy-to-use package for rapidly generating CRUD functionality in Laravel applications. With **Sketch**, you can effortlessly define models, migration, form request validation and services. all based on a simple blueprint configuration. This package streamlines the development process and ensures consistency across your application.
 
 ## Features
 
 - 📝 **Blueprint-Based Generation**
-  - Easily define models, controllers, and views via simple YAML or JSON blueprints.
+  - Easily define via simple YAML blueprints.
   - Generate CRUD for any resource without writing repetitive boilerplate code.
 
 - ⚡ **Rapid Development**
   - Reduce development time by automating the creation of common CRUD functionalities.
   - Works with Laravel's Artisan commands to instantly generate fully functional resources.
-
-- 💻 **Customizable Templates**
-  - Customize the generated code templates for models, controllers, views, and routes.
-  - Add custom logic to controllers and modify views easily.
-
-- 🚀 **Multi-Blueprint Support**
-  - Support for multiple blueprints, allowing you to define various resource configurations.
-  - Combine multiple blueprints in a single project.
-
-- 📦 **Efficient File Organization**
-  - The generated files follow best practices and are neatly organized.
-  - Automatically create necessary migrations, policies, and tests for each resource.
 
 - 🧩 **Built-in Relationships**
   - Automatically generate relationships like one-to-many, many-to-many, and one-to-one.
