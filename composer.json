@@ -1,7 +1,7 @@
 {
     "name": "daycode/sketch",
-    "description": "A skeleton repository for my packages",
-    "keywords": ["php", "skeleton", "package"],
+    "description": "Sketch is a powerful, easy-to-use package for rapidly generating YAML-Based CRUD functionality in Laravel applications.",
+    "keywords": ["php", "laravel", "package"],
     "license": "MIT",
     "authors": [
         {
