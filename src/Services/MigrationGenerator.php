@@ -80,7 +80,7 @@ class MigrationGenerator
     {
         $pk = $this->schema['primaryKey'] ?? ['name' => 'id', 'type' => 'id'];
 
-        return "\$table->{$pk['type']}('{$pk['name']}');\n";
+        return "\$table->{$pk['type']}('{$pk['name']}')->primary();\n";
     }
 
     protected function generateField(array $field): string
@@ -105,11 +105,19 @@ class MigrationGenerator
     {
         $tableName = Str::plural(Str::camel($relation['model']));
         $primaryKey = $relation['ownerKey'] ?? $relation['localKey'];
+        $keyType = $relation['keyType'] ?? 'integer';
         $foreignKey = $relation['foreignKey'];
         $onUpdate = $relation['onUpdate'] ?? 'cascade';
         $onDelete = $relation['onDelete'] ?? 'cascade';
 
-        $schema = "            \$table->foreign('{$foreignKey}')\n";
+        if ($keyType == 'uuid') {
+            $schema = "            \$table->foreignUuid('{$foreignKey}')\n";
+        } elseif ($keyType == 'ulid') {
+            $schema = "            \$table->foreignUlid('{$foreignKey}')\n";
+        } else {
+            $schema = "            \$table->foreignId('{$foreignKey}')\n";
+        }
+
         $schema .= "                ->references('{$primaryKey}')\n";
         $schema .= "                ->on('{$tableName}')\n";
         $schema .= "                ->onUpdate('{$onUpdate}')\n";

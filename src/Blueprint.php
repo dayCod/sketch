@@ -76,12 +76,14 @@ class Blueprint
                     'model' => 'Comment',
                     'foreignKey' => 'post_id',
                     'localKey' => 'id',
+                    'keyType' => 'uuid'
                 ],
                 [
                     'type' => 'hasOne',
                     'model' => 'Profile',
                     'foreignKey' => 'user_id',
                     'localKey' => 'id',
+                    'keyType' => 'ulid'
                 ],
             ],
         ];
