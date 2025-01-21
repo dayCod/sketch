@@ -1,12 +1,11 @@
-<!-- <p align="center">
-  <img src="https://github.com/dayCod/curtain/blob/main/art/curtain-logo.png" alt="Curtain Logo">
-</p> -->
+<p align="center">
+  <img src="https://github.com/dayCod/sketch/blob/master/art/sketch-logo.png" alt="Sketch Logo">
+</p>
 
 <p align="center">
   <a href="https://packagist.org/packages/vendor/curtain"><img src="https://img.shields.io/packagist/v/vendor/curtain" alt="Latest Stable Version"></a>
   <a href="https://packagist.org/packages/vendor/curtain"><img src="https://img.shields.io/packagist/dt/vendor/curtain" alt="Total Downloads"></a>
   <a href="https://packagist.org/packages/vendor/curtain"><img src="https://img.shields.io/packagist/l/vendor/curtain" alt="License"></a>
-<!--   <a href="https://github.com/dayCod/curtain/actions"><img src="https://github.com/dayCod/curtain/workflows/tests/badge.svg" alt="Build Status"></a> -->
 </p>
 
 ## Blueprint-Based CRUD Generator for Laravel
