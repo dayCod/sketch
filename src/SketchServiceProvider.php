@@ -22,8 +22,11 @@ class SketchServiceProvider extends ServiceProvider
             // Publish configuration
             $this->publishes([
                 __DIR__.'/../config/sketch.php' => config_path('sketch.php'),
-                __DIR__.'/../stubs' => base_path('stubs/sketch'),
             ], 'sketch');
+
+            $this->publishes([
+                __DIR__.'/../stubs' => base_path('stubs/sketch'),
+            ], 'sketch-stubs');
         }
     }
 
