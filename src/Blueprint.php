@@ -86,6 +86,6 @@ class Blueprint
             ],
         ];
 
-        return Yaml::dump($schemaData, 6, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+        return Yaml::dump($schemaData);
     }
 }
