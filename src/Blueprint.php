@@ -27,7 +27,7 @@ class Blueprint
             'model' => $model,
             'primaryKey' => [
                 'name' => 'id',
-                'type' => 'integer',
+                'type' => 'id', # id, uuid, ulid
             ],
             'fields' => [
                 [
