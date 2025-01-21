@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Daycode\Sketch\Commands;
 
+use Illuminate\Support\Str;
 use Daycode\Sketch\Blueprint;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
 
 class GenerateBlueprintFile extends Command
 {
@@ -14,27 +16,65 @@ class GenerateBlueprintFile extends Command
      *
      * @var string
      */
-    protected $signature = 'sketch:make-blueprint {name} {--soft-delete}';
+    protected $signature = 'sketch:make-blueprint {path : The path of the model} {--soft-delete : Enable soft delete in the schema}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create Blueprint YAML structure for a Laravel resource';
+    protected $description = 'Generate a new YAML schema blueprint file';
 
     /**
      * Execute the console command.
      */
-    public function handle(Blueprint $blueprint): void
+    public function handle(Blueprint $blueprint)
     {
         try {
-            $name = $this->argument('name');
-            $result = $blueprint->createYaml(name: $name, softDelete: $this->option('soft-delete'));
+            $path = $this->argument('path');
+            $softDelete = $this->option('soft-delete');
 
-            $this->info("YAML file for {$this->argument('name')} has been created at: {$result}");
-        } catch (\Exception $ex) {
-            $this->error($ex->getMessage());
+            // Get model name from the last segment of the path
+            $segments = explode('/', $path);
+            $model = Str::studly(array_pop($segments));
+
+            // Create base schemas directory
+            $baseDirectory = base_path('schemas');
+            if (!File::exists($baseDirectory)) {
+                File::makeDirectory($baseDirectory);
+            }
+
+            // Create subdirectories if needed
+            $currentPath = $baseDirectory;
+            foreach ($segments as $segment) {
+                $currentPath .= '/' . $segment;
+                if (!File::exists($currentPath)) {
+                    File::makeDirectory($currentPath);
+                }
+            }
+
+            // Generate blueprint content
+            $blueprint = $blueprint->createYaml($model, $softDelete);
+
+            // Final file path
+            $filePath = $baseDirectory . '/' . $path . '.yaml';
+
+            if (File::exists($filePath)) {
+                if (!$this->confirm("The file {$filePath} already exists. Do you want to override it?")) {
+                    $this->info('Operation cancelled.');
+                    return self::SUCCESS;
+                }
+            }
+
+            File::put($filePath, $blueprint);
+
+            $this->info("Blueprint file created: {$filePath}");
+            $this->info("Soft Delete: " . ($softDelete ? 'Enabled' : 'Disabled'));
+
+            return self::SUCCESS;
+        } catch (\Exception $e) {
+            $this->error($e->getMessage());
+            return self::FAILURE;
         }
     }
 }

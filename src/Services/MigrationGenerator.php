@@ -103,6 +103,7 @@ class MigrationGenerator
 
     protected function generateRelationField(array $relation): string
     {
+        $tableName = Str::plural(Str::camel($relation['model']));
         $primaryKey = $relation['ownerKey'] ?? $relation['localKey'];
         $foreignKey = $relation['foreignKey'];
         $onUpdate = $relation['onUpdate'] ?? 'cascade';
@@ -110,6 +111,7 @@ class MigrationGenerator
 
         $schema = "            \$table->foreign('{$foreignKey}')\n";
         $schema .= "                ->references('{$primaryKey}')\n";
+        $schema .= "                ->on('{$tableName}')\n";
         $schema .= "                ->onUpdate('{$onUpdate}')\n";
 
         return $schema."                ->onDelete('{$onDelete}');\n";

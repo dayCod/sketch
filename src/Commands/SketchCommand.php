@@ -53,16 +53,16 @@ class SketchCommand extends Command
             $this->ensureDirectoriesExist();
 
             // Generate Model
-            $modelGenerator = new ModelGenerator(config('sketch'), $schema);
-            $modelPath = $modelGenerator->getOutputPath();
+            // $modelGenerator = new ModelGenerator(config('sketch'), $schema);
+            // $modelPath = $modelGenerator->getOutputPath();
 
-            if (File::exists($modelPath) && ! $force) {
-                $this->warn("Model file already exists: {$modelPath}");
-            } else {
-                $modelContent = $modelGenerator->generate();
-                file_put_contents($modelPath, $modelContent);
-                $this->info("Model generated: {$modelPath}");
-            }
+            // if (File::exists($modelPath) && ! $force) {
+            //     $this->warn("Model file already exists: {$modelPath}");
+            // } else {
+            //     $modelContent = $modelGenerator->generate();
+            //     file_put_contents($modelPath, $modelContent);
+            //     $this->info("Model generated: {$modelPath}");
+            // }
 
             // Generate Migration
             $migrationGenerator = new MigrationGenerator(config('sketch'), $schema);
@@ -79,16 +79,16 @@ class SketchCommand extends Command
             }
 
             // Generate Actions
-            $actionGenerator = new ActionGenerator(config('sketch'), $schema);
-            $actionPath = $actionGenerator->getOutputPath();
+            // $actionGenerator = new ActionGenerator(config('sketch'), $schema);
+            // $actionPath = $actionGenerator->getOutputPath();
 
-            if (File::exists($actionPath) && ! $force) {
-                $this->warn("Actions file already exists: {$actionPath}");
-            } else {
-                $actionContent = $actionGenerator->generate();
-                file_put_contents($actionPath, $actionContent);
-                $this->info("Actions generated: {$actionPath}");
-            }
+            // if (File::exists($actionPath) && ! $force) {
+            //     $this->warn("Actions file already exists: {$actionPath}");
+            // } else {
+            //     $actionContent = $actionGenerator->generate();
+            //     file_put_contents($actionPath, $actionContent);
+            //     $this->info("Actions generated: {$actionPath}");
+            // }
 
             return self::SUCCESS;
         } catch (\Exception $e) {

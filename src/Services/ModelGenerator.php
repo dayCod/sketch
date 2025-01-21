@@ -192,10 +192,10 @@ class ModelGenerator
         $localKey = $relation['localKey'] ?? 'id';
 
         return <<<PHP
-        /**
+            /**
              * Get the {$method} associated with the {$this->schema['model']}.
              */
-            public function {$method}()
+            public function {$method}(): HasOne
             {
                 return \$this->hasOne({$relationClass}::class, '{$foreignKey}', '{$localKey}');
             }
@@ -208,10 +208,10 @@ class ModelGenerator
         $localKey = $relation['localKey'] ?? 'id';
 
         return <<<PHP
-        /**
+            /**
              * Get the {$method} for the {$this->schema['model']}.
              */
-            public function {$method}()
+            public function {$method}(): HasMany
             {
                 return \$this->hasMany({$relationClass}::class, '{$foreignKey}', '{$localKey}');
             }

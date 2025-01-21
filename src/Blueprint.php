@@ -17,77 +17,77 @@ class Blueprint
      * timestamps, and relationships based on the provided name. The generated
      * YAML file is stored in the `sketch` directory.
      *
-     * @param  string  $name  The name of the model for which the YAML blueprint is to be created.
+     * @param  string  $model  The name of the model for which the YAML blueprint is to be created.
      * @param  bool  $softDelete  Optional. Whether to include soft delete functionality in the model. Default is false.
-     * @return string The full path to the created YAML file, relative to the `sketch` directory.
-     *
-     * @throws FileException If a YAML file with the specified name already exists.
      */
-    public function createYaml(string $name, bool $softDelete = false): string
+    public function createYaml(string $model, bool $softDelete = false): string
     {
-        $parsedFilePath = $this->parseFilePath(name: Str::title($name));
-
-        $data = [
-            'model' => $parsedFilePath->file,
-            'primaryKey' => ['name' => 'id', 'type' => 'integer'],
-            'fields' => [
-                ['name' => 'title', 'type' => 'string', 'nullable' => false],
-                ['name' => 'content', 'type' => 'text', 'nullable' => true],
+        $schemaData = [
+            'version' => '1.0',
+            'lastUpdated' => now()->format('Y-m-d'),
+            'description' => "{$model} schema with basic configuration",
+            'model' => $model,
+            'primaryKey' => [
+                'name' => 'id',
+                'type' => 'integer'
             ],
-            'timestamps' => config('sketch.timestamps', true),
+            'fields' => [
+                [
+                    'name' => 'name',
+                    'type' => 'string',
+                    'nullable' => false
+                ],
+                [
+                    'name' => 'description',
+                    'type' => 'text',
+                    'nullable' => true
+                ],
+                [
+                    'name' => 'email',
+                    'type' => 'string',
+                    'nullable' => false
+                ],
+                [
+                    'name' => 'status',
+                    'type' => 'enum',
+                    'nullable' => false,
+                    'options' => ['active', 'inactive']
+                ],
+                [
+                    'name' => 'published_at',
+                    'type' => 'datetime',
+                    'nullable' => true
+                ],
+                [
+                    'name' => 'metadata',
+                    'type' => 'json',
+                    'nullable' => true
+                ],
+            ],
+            'timestamps' => true,
             'softDeletes' => $softDelete,
             'relationships' => [
                 [
-                    'foreignKey' => 'user_id',
                     'type' => 'belongsTo',
                     'model' => 'User',
+                    'foreignKey' => 'user_id',
                     'ownerKey' => 'id',
-                    'onUpdate' => 'cascade',
-                    'onDelete' => 'cascade',
                 ],
-            ],
+                [
+                    'type' => 'hasMany',
+                    'model' => 'Comment',
+                    'foreignKey' => 'post_id',
+                    'localKey' => 'id',
+                ],
+                [
+                    'type' => 'hasOne',
+                    'model' => 'Profile',
+                    'foreignKey' => 'user_id',
+                    'localKey' => 'id',
+                ]
+            ]
         ];
 
-        $fullPath = is_null($parsedFilePath->path)
-            ? $parsedFilePath->file
-            : $parsedFilePath->path.'/'.$parsedFilePath->file;
-
-        if (! is_dir(config('sketch.blueprint_path')."/{$parsedFilePath->path}")) {
-            mkdir(config('sketch.blueprint_path')."/{$parsedFilePath->path}", 0777, true);
-        }
-
-        if (file_exists(config('sketch.blueprint_path')."/{$fullPath}.yaml")) {
-            throw new FileException("{$fullPath}.yaml already exists!");
-        }
-
-        file_put_contents(config('sketch.blueprint_path')."/{$fullPath}.yaml", Yaml::dump($data));
-
-        return $fullPath;
-    }
-
-    /**
-     * Parses a file path string into an object containing path and file components.
-     *
-     * @param  string  $name  The file path string, potentially including directories.
-     * @return object
-     */
-    public function parseFilePath(string $name)
-    {
-        $segments = explode('/', $name);
-
-        if (count($segments) > 1) {
-            $file = array_pop($segments);
-            $path = implode('/', $segments);
-
-            return (object) [
-                'path' => $path,
-                'file' => $file,
-            ];
-        }
-
-        return (object) [
-            'path' => null,
-            'file' => $segments[0],
-        ];
+        return Yaml::dump($schemaData, 6, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
     }
 }
