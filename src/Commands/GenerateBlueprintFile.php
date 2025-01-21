@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Daycode\Sketch\Commands;
 
-use Illuminate\Support\Str;
 use Daycode\Sketch\Blueprint;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class GenerateBlueprintFile extends Command
 {
@@ -28,7 +28,7 @@ class GenerateBlueprintFile extends Command
     /**
      * Execute the console command.
      */
-    public function handle(Blueprint $blueprint)
+    public function handle(Blueprint $blueprint): int
     {
         try {
             $path = $this->argument('path');
@@ -40,15 +40,15 @@ class GenerateBlueprintFile extends Command
 
             // Create base schemas directory
             $baseDirectory = config('sketch.schemas.path', base_path('schemas'));
-            if (!File::exists($baseDirectory)) {
+            if (! File::exists($baseDirectory)) {
                 File::makeDirectory($baseDirectory);
             }
 
             // Create subdirectories if needed
             $currentPath = $baseDirectory;
             foreach ($segments as $segment) {
-                $currentPath .= '/' . $segment;
-                if (!File::exists($currentPath)) {
+                $currentPath .= '/'.$segment;
+                if (! File::exists($currentPath)) {
                     File::makeDirectory($currentPath);
                 }
             }
@@ -57,23 +57,23 @@ class GenerateBlueprintFile extends Command
             $blueprint = $blueprint->createYaml($model, $softDelete);
 
             // Final file path
-            $filePath = $baseDirectory . '/' . $path . '.yaml';
+            $filePath = $baseDirectory.'/'.$path.'.yaml';
 
-            if (File::exists($filePath)) {
-                if (!$this->confirm("The file {$filePath} already exists. Do you want to override it?")) {
-                    $this->info('Operation cancelled.');
-                    return self::SUCCESS;
-                }
+            if (File::exists($filePath) && ! $this->confirm("The file {$filePath} already exists. Do you want to override it?")) {
+                $this->info('Operation cancelled.');
+
+                return self::SUCCESS;
             }
 
             File::put($filePath, $blueprint);
 
             $this->info("Blueprint file created: {$filePath}");
-            $this->info("Soft Delete: " . ($softDelete ? 'Enabled' : 'Disabled'));
+            $this->info('Soft Delete: '.($softDelete ? 'Enabled' : 'Disabled'));
 
             return self::SUCCESS;
         } catch (\Exception $e) {
             $this->error($e->getMessage());
+
             return self::FAILURE;
         }
     }

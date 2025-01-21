@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Daycode\Sketch;
 
-use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\Yaml\Yaml;
 
 class Blueprint
@@ -29,39 +27,39 @@ class Blueprint
             'model' => $model,
             'primaryKey' => [
                 'name' => 'id',
-                'type' => 'integer'
+                'type' => 'integer',
             ],
             'fields' => [
                 [
                     'name' => 'name',
                     'type' => 'string',
-                    'nullable' => false
+                    'nullable' => false,
                 ],
                 [
                     'name' => 'description',
                     'type' => 'text',
-                    'nullable' => true
+                    'nullable' => true,
                 ],
                 [
                     'name' => 'email',
                     'type' => 'string',
-                    'nullable' => false
+                    'nullable' => false,
                 ],
                 [
                     'name' => 'status',
                     'type' => 'enum',
                     'nullable' => false,
-                    'options' => ['active', 'inactive']
+                    'options' => ['active', 'inactive'],
                 ],
                 [
                     'name' => 'published_at',
                     'type' => 'datetime',
-                    'nullable' => true
+                    'nullable' => true,
                 ],
                 [
                     'name' => 'metadata',
                     'type' => 'json',
-                    'nullable' => true
+                    'nullable' => true,
                 ],
             ],
             'timestamps' => true,
@@ -84,8 +82,8 @@ class Blueprint
                     'model' => 'Profile',
                     'foreignKey' => 'user_id',
                     'localKey' => 'id',
-                ]
-            ]
+                ],
+            ],
         ];
 
         return Yaml::dump($schemaData, 6, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
