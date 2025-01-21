@@ -6,6 +6,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Schema Path Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This value determines where your YAML schema files will be stored.
+    | By default, schemas will be placed in the 'schemas' directory
+    | in the root of your project.
+    |
+    */
+    'schemas' => [
+        'path' => base_path('schemas'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Output Path Configuration
     |--------------------------------------------------------------------------
     |

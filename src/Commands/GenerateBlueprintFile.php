@@ -39,7 +39,7 @@ class GenerateBlueprintFile extends Command
             $model = Str::studly(array_pop($segments));
 
             // Create base schemas directory
-            $baseDirectory = base_path('schemas');
+            $baseDirectory = config('sketch.schemas.path', base_path('schemas'));
             if (!File::exists($baseDirectory)) {
                 File::makeDirectory($baseDirectory);
             }
