@@ -31,7 +31,6 @@ return [
     'paths' => [
         'models' => app_path('Models'),
         'migrations' => database_path('migrations'),
-        'actions' => app_path('Actions'),
         'requests' => app_path('Http/Requests'),
     ],
 
@@ -47,7 +46,6 @@ return [
     'stubs' => [
         'model' => __DIR__.'/../stubs/model.stub',
         'migration' => __DIR__.'/../stubs/migration.stub',
-        'action' => __DIR__.'/../stubs/action.stub',
         'request' => __DIR__.'/../stubs/form-request.stub',
     ],
 

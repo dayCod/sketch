@@ -30,12 +30,10 @@ class TestCase extends Orchestra
         // Set up config
         config([
             'sketch.paths.models' => $this->app->basePath('app/Models'),
-            'sketch.paths.actions' => $this->app->basePath('app/Actions'),
             'sketch.paths.requests' => $this->app->basePath('app/Http/Requests'),
             'sketch.paths.migrations' => $this->app->basePath('database/migrations'),
             'sketch.stubs.model' => $packagePath.'/stubs/model.stub',
             'sketch.stubs.migration' => $packagePath.'/stubs/migration.stub',
-            'sketch.stubs.action' => $packagePath.'/stubs/action.stub',
             'sketch.stubs.request' => $packagePath.'/stubs/form-request.stub',
         ]);
     }
@@ -45,7 +43,6 @@ class TestCase extends Orchestra
         $paths = [
             $this->app->basePath('tests/stubs'),
             $this->app->basePath('app/Models'),
-            $this->app->basePath('app/Actions'),
             $this->app->basePath('app/Http/Requests'),
             $this->app->basePath('database/migrations'),
         ];

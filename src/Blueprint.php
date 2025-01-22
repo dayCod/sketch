@@ -27,7 +27,7 @@ class Blueprint
             'model' => $model,
             'primaryKey' => [
                 'name' => 'id',
-                'type' => 'id', # id, uuid, ulid
+                'type' => 'id', // id, uuid, ulid
             ],
             'fields' => [
                 [
@@ -76,14 +76,14 @@ class Blueprint
                     'model' => 'Comment',
                     'foreignKey' => 'post_id',
                     'localKey' => 'id',
-                    'keyType' => 'uuid'
+                    'keyType' => 'uuid',
                 ],
                 [
                     'type' => 'hasOne',
                     'model' => 'Profile',
                     'foreignKey' => 'user_id',
                     'localKey' => 'id',
-                    'keyType' => 'ulid'
+                    'keyType' => 'ulid',
                 ],
             ],
         ];

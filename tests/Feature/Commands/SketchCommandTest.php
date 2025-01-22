@@ -26,7 +26,7 @@ test('it can generate files from yaml', function (): void {
     timestamps: true
     softDeletes: false
     relationships:
-        - { foreignKey: user_id, type: belongsTo, model: User, ownerKey: id, onUpdate: cascade, onDelete: cascade }
+        - { foreignKey: user_id, type: belongsTo, model: User, ownerKey: id }
     YAML;
 
     $yamlPath = $this->app->basePath('tests/stubs/test.yaml');

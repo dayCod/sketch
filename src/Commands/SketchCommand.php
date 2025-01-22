@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Daycode\Sketch\Commands;
 
 use Daycode\Sketch\Exceptions\InvalidYamlException;
-use Daycode\Sketch\Services\ActionGenerator;
+use Daycode\Sketch\Services\FormRequestGenerator;
 use Daycode\Sketch\Services\MigrationGenerator;
 use Daycode\Sketch\Services\ModelGenerator;
 use Daycode\Sketch\Support\YamlParser;
@@ -78,16 +78,15 @@ class SketchCommand extends Command
                 $this->info("Migration generated: {$migrationPath}");
             }
 
-            // Generate Actions
-            $actionGenerator = new ActionGenerator(config('sketch'), $schema);
-            $actionPath = $actionGenerator->getOutputPath();
+            // Generate Form Requests
+            $formRequestGenerator = new FormRequestGenerator(config('sketch'), $schema);
+            $formRequestPath = $formRequestGenerator->getOutputPath();
 
-            if (File::exists($actionPath) && ! $force) {
-                $this->warn("Actions file already exists: {$actionPath}");
+            if (File::exists($formRequestPath['create']) && ! $force) {
+                $this->warn("Form request files already exist: {$formRequestPath['create']}");
             } else {
-                $actionContent = $actionGenerator->generate();
-                file_put_contents($actionPath, $actionContent);
-                $this->info("Actions generated: {$actionPath}");
+                $formRequestGenerator->generate();
+                $this->info('Form requests (create & update) generated successfully');
             }
 
             return self::SUCCESS;
@@ -111,7 +110,6 @@ class SketchCommand extends Command
     {
         $paths = [
             config('sketch.paths.models'),
-            config('sketch.paths.actions'),
             config('sketch.paths.requests'),
             config('sketch.paths.migrations'),
         ];
