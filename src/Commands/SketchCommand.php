@@ -8,6 +8,7 @@ use Daycode\Sketch\Exceptions\InvalidYamlException;
 use Daycode\Sketch\Services\FormRequestGenerator;
 use Daycode\Sketch\Services\MigrationGenerator;
 use Daycode\Sketch\Services\ModelGenerator;
+use Daycode\Sketch\Services\ServiceRepositoryGenerator;
 use Daycode\Sketch\Support\YamlParser;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
@@ -19,14 +20,19 @@ class SketchCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'sketch:generate {--file= : The YAML file to process} {--force : Force generate files even if they already exist}';
+    protected $signature = 'sketch:generate
+                                {--file= : The YAML file to process}
+                                {--force : Force generate files even if they already exist}
+                                {--service-repository : Generate both service and repository}
+                                {--service-only : Generate service only}
+                                {--repository-only : Generate repository with model binding}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Generate CRUD Files from YAML Specification';
+    protected $description = 'Generate files from YAML schema';
 
     /**
      * Execute the console command.
@@ -87,6 +93,28 @@ class SketchCommand extends Command
             } else {
                 $formRequestGenerator->generate();
                 $this->info('Form requests (create & update) generated successfully');
+            }
+
+            // Generate Service Repository
+            $serviceRepoOptions = [
+                'service-repository' => $this->option('service-repository'),
+                'service-only' => $this->option('service-only'),
+                'repository-only' => $this->option('repository-only'),
+            ];
+
+            // Check if any service repository option is enabled
+            if (array_filter($serviceRepoOptions) !== []) {
+                $serviceRepoGenerator = new ServiceRepositoryGenerator(
+                    config('sketch'),
+                    $schema,
+                    $serviceRepoOptions
+                );
+
+                $serviceRepoGenerator->generate();
+
+                // foreach ($generationResults as $result) {
+                //     $this->info($result);
+                // }
             }
 
             return self::SUCCESS;
