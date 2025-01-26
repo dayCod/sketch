@@ -199,7 +199,19 @@ class FormRequestGenerator
     {
         return collect($this->schema['relationships'])
             ->map(function (array $relation) use ($isCreate): string {
-                $rules = ['exists:'.Str::snake(Str::pluralStudly($relation['model'])).',id'];
+                // Handle different relationship types
+                if ($relation['type'] === 'belongsToMany') {
+                    return $this->generateBelongsToManyRules($relation, $isCreate);
+                }
+
+                // Get foreign key based on relationship type
+                $foreignKey = $this->getForeignKeyFromRelation($relation);
+
+                // For other relationships, determine the referenced table and key
+                $table = $relation['table'] ?? Str::snake(Str::pluralStudly($relation['model']));
+                $referencedKey = $relation['references'] ?? 'id';
+
+                $rules = ["exists:{$table},{$referencedKey}"];
 
                 if ($isCreate) {
                     array_unshift($rules, $relation['nullable'] ?? false ? 'nullable' : 'required');
@@ -207,8 +219,100 @@ class FormRequestGenerator
                     array_unshift($rules, 'sometimes', 'nullable');
                 }
 
-                return sprintf("            '%s' => ['%s']", $relation['foreignKey'], implode("', '", $rules));
+                return sprintf("            '%s' => ['%s']", $foreignKey, implode("', '", $rules));
             });
+    }
+
+    protected function getForeignKeyFromRelation(array $relation): string
+    {
+        return match($relation['type']) {
+            'belongsTo' => $relation['foreignKey'] ?? Str::snake($relation['model']) . '_id',
+            'hasOne', 'hasMany' => $relation['foreignKey'] ?? Str::snake($this->schema['model']) . '_id',
+            'hasOneThrough', 'hasManyThrough' => $relation['firstKey'] ?? Str::snake($this->schema['model']) . '_id',
+            default => throw new GeneratorException("Unsupported relationship type: {$relation['type']}")
+        };
+    }
+
+    /**
+     * Generate validation rules for BelongsToMany relationship.
+     */
+    protected function generateBelongsToManyRules(array $relation, bool $isCreate): string
+    {
+        $rules = [
+            // Array validation for multiple selections
+            'array',
+            // Exists rule using the table and key from relatedPivot
+            "exists:{$relation['relatedPivot']['table']},{$relation['relatedPivot']['references']}"
+        ];
+
+        if ($isCreate) {
+            array_unshift($rules, $relation['nullable'] ?? false ? 'nullable' : 'required');
+        } else {
+            array_unshift($rules, 'sometimes', 'nullable');
+        }
+
+        // Generate validation for pivot fields if they exist
+        $pivotRules = '';
+        if (!empty($relation['pivotColumns'])) {
+            $pivotRules = $this->generatePivotFieldRules($relation['pivotColumns'], $isCreate);
+        }
+
+        // Format the main rules
+        $mainRule = sprintf(
+            "            '%s' => ['%s']",
+            Str::snake(Str::plural($relation['model'])),
+            implode("', '", $rules)
+        );
+
+        // Combine main rules with pivot rules if they exist
+        return empty($pivotRules) ? $mainRule : $mainRule . ",\n" . $pivotRules;
+    }
+
+    /**
+     * Generate validation rules for pivot fields.
+     */
+    protected function generatePivotFieldRules(array $pivotColumns, bool $isCreate): string
+    {
+        return collect($pivotColumns)
+            ->map(function (array $column) use ($isCreate): string {
+                $rules = $this->getPivotFieldRules($column, $isCreate);
+
+                return sprintf(
+                    "            '%s' => ['%s']",
+                    $column['name'],
+                    implode("', '", $rules)
+                );
+            })
+            ->implode(",\n");
+    }
+
+    /**
+     * Get validation rules for a pivot field.
+     */
+    protected function getPivotFieldRules(array $column, bool $isCreate): array
+    {
+        $rules = [];
+
+        // Required/nullable rule
+        if ($isCreate) {
+            $rules[] = $column['nullable'] ?? false ? 'nullable' : 'required';
+        } else {
+            $rules[] = 'sometimes';
+            $rules[] = $column['nullable'] ?? false ? 'nullable' : 'required';
+        }
+
+        // Add type-specific rules
+        switch ($column['type']) {
+            case 'timestamp':
+                $rules[] = 'date';
+                break;
+            case 'boolean':
+                $rules[] = 'boolean';
+                break;
+            // Add more types as needed
+        }
+
+        return $rules;
     }
 
     /**

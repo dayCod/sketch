@@ -47,6 +47,7 @@ class MigrationGenerator
     protected function generateSchema(): string
     {
         $schema = '';
+        $pivotTables = [];
 
         // Primary Key
         $schema .= $this->generatePrimaryKey();
@@ -57,9 +58,13 @@ class MigrationGenerator
         }
 
         // Relationships
-        if (! empty($this->schema['relationships'])) {
+        if (!empty($this->schema['relationships'])) {
             foreach ($this->schema['relationships'] as $relation) {
-                $schema .= $this->generateRelationField($relation);
+                if ($relation['type'] === 'belongsToMany') {
+                    $pivotTables[] = $this->generatePivotTable($relation);
+                } elseif (!in_array($relation['type'], ['hasOneThrough', 'hasManyThrough'])) {
+                    $schema .= $this->generateRelationField($relation);
+                }
             }
         }
 
@@ -73,6 +78,12 @@ class MigrationGenerator
             $schema .= "            \$table->softDeletes();\n";
         }
 
+        // Generate pivot tables if any
+        if (!empty($pivotTables)) {
+            $schema .= "\n            // Pivot Tables\n";
+            $schema .= implode("\n", $pivotTables);
+        }
+
         return $schema;
     }
 
@@ -81,6 +92,102 @@ class MigrationGenerator
         $pk = $this->schema['primaryKey'] ?? ['name' => 'id', 'type' => 'id'];
 
         return "\$table->{$pk['type']}('{$pk['name']}')->primary();\n";
+    }
+
+    protected function generatePivotTable(array $relation): string
+    {
+        $pivotTable = $relation['pivotTable'] ?? $this->generatePivotTableName($this->schema['model'], $relation['model']);
+        $tableKeyType = $relation['pivotTableKeyType'] ?? 'integer';
+
+        $schema = "\n            Schema::create('{$pivotTable}', function (Blueprint \$table) {\n";
+
+        // Generate pivot table primary key
+        if ($tableKeyType === 'uuid') {
+            $schema .= "                \$table->uuid('id')->primary();\n";
+        } elseif ($tableKeyType === 'ulid') {
+            $schema .= "                \$table->ulid('id')->primary();\n";
+        } else {
+            $schema .= "                \$table->id();\n";
+        }
+
+        // Generate foreign pivot key
+        $foreignPivot = $relation['foreignPivot'];
+        $schema .= $this->generatePivotForeignKey(
+            key: $foreignPivot['key'],
+            keyType: $foreignPivot['type'],
+            references: $foreignPivot['references'] ?? 'id',
+            tableName: $foreignPivot['table']
+        );
+
+        // Generate related pivot key
+        $relatedPivot = $relation['relatedPivot'];
+        $schema .= $this->generatePivotForeignKey(
+            key: $relatedPivot['key'],
+            keyType: $relatedPivot['type'],
+            references: $relatedPivot['references'] ?? 'id',
+            tableName: $relatedPivot['table']
+        );
+
+        // Generate additional pivot columns
+        if (isset($relation['pivotColumns']) && is_array($relation['pivotColumns'])) {
+            foreach ($relation['pivotColumns'] as $column) {
+                $schema .= $this->generatePivotColumn($column);
+            }
+        }
+
+        // Add timestamps if specified
+        if ($relation['withTimestamps'] ?? false) {
+            $schema .= "                \$table->timestamps();\n";
+        }
+
+        $schema .= "            });\n";
+
+        return $schema;
+    }
+
+    protected function generatePivotForeignKey(string $key, string $keyType, string $references, string $tableName): string
+    {
+        $schema = '';
+
+        if ($keyType === 'uuid') {
+            $schema .= "                \$table->foreignUuid('{$key}')\n";
+        } elseif ($keyType === 'ulid') {
+            $schema .= "                \$table->foreignUlid('{$key}')\n";
+        } else {
+            $schema .= "                \$table->foreignId('{$key}')\n";
+        }
+
+        $schema .= "                    ->references('{$references}')\n";
+        $schema .= "                    ->on('{$tableName}')\n";
+        $schema .= "                    ->cascadeOnDelete()\n";
+        $schema .= "                    ->cascadeOnUpdate();\n";
+
+        return $schema;
+    }
+
+    protected function generatePivotColumn(array $column): string
+    {
+        $name = $column['name'];
+        $type = $column['type'];
+        $nullable = $column['nullable'] ?? false;
+
+        $schema = "                \$table->{$type}('{$name}')";
+
+        if ($nullable) {
+            $schema .= "->nullable()";
+        }
+
+        return $schema . ";\n";
+    }
+
+    protected function generatePivotTableName(string $model1, string $model2): string
+    {
+        $models = [
+            Str::snake(Str::plural($model1)),
+            Str::snake(Str::plural($model2))
+        ];
+        sort($models);
+        return implode('_', $models);
     }
 
     protected function generateField(array $field): string

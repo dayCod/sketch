@@ -84,7 +84,7 @@ class SketchCommand extends Command
                 $this->info("Migration generated: {$migrationPath}");
             }
 
-            // Generate Form Requests
+            // // Generate Form Requests
             $formRequestGenerator = new FormRequestGenerator(config('sketch'), $schema);
             $formRequestPath = $formRequestGenerator->getOutputPath();
 
@@ -111,10 +111,6 @@ class SketchCommand extends Command
                 );
 
                 $serviceRepoGenerator->generate();
-
-                // foreach ($generationResults as $result) {
-                //     $this->info($result);
-                // }
             }
 
             return self::SUCCESS;

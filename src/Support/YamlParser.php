@@ -67,8 +67,16 @@ class YamlParser
                     throw new InvalidYamlException('Related model is required');
                 }
 
-                if (empty($relation['foreignKey'])) {
+                if (in_array($relation['type'], ['belongsTo', 'hasMany', 'hasOne']) && empty($relation['foreignKey'])) {
                     throw new InvalidYamlException('Foreign key is required');
+                }
+
+                // if ($relation['type'] == 'belongsToMany' && empty($relation['foreignPivotKey'])) {
+                //     throw new InvalidYamlException('Foreign Pivot key is required');
+                // }
+
+                if (in_array($relation['type'], ['hasOneThrough', 'hasManyThrough']) && empty($relation['through'])) {
+                    throw new InvalidYamlException('Through model is required');
                 }
             }
         }

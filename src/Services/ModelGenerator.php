@@ -150,6 +150,9 @@ class ModelGenerator
                     'belongsTo' => $this->generateBelongsToRelation($method, $relationClass, $relation),
                     'hasOne' => $this->generateHasOneRelation($method, $relationClass, $relation),
                     'hasMany' => $this->generateHasManyRelation($method, $relationClass, $relation),
+                    'belongsToMany' => $this->generateBelongsToManyRelation($method, $relationClass, $relation),
+                    'hasOneThrough' => $this->generateHasOneThroughRelation($method, $relationClass, $relation),
+                    'hasManyThrough' => $this->generateHasManyThroughRelation($method, $relationClass, $relation),
                     default => throw new GeneratorException("Unknown relationship type: {$relation['type']}")
                 };
             })
@@ -218,6 +221,92 @@ class ModelGenerator
         PHP;
     }
 
+    protected function generateBelongsToManyRelation(string $method, string $relationClass, array $relation): string
+    {
+        $table = $relation['pivotTable'] ?? $this->generatePivotTableName($this->schema['model'], class_basename($relationClass));
+        $foreignPivotKey = $relation['foreignPivot']['key'] ?? Str::snake($this->schema['model']) . '_id';
+        $relatedPivotKey = $relation['relatedPivot']['key'] ?? Str::snake(class_basename($relationClass)) . '_id';
+
+        // Build withPivot call if there are additional columns
+        $withPivot = '';
+        if (isset($relation['pivotColumns']) && is_array($relation['pivotColumns'])) {
+            $pivotColumns = array_map(function($column) {
+                return $column['name'];
+            }, $relation['pivotColumns']);
+
+            if (!empty($pivotColumns)) {
+                $withPivot = "->withPivot('" . implode("', '", $pivotColumns) . "')";
+            }
+        }
+
+        // Add timestamps if specified
+        if ($relation['withTimestamps'] ?? false) {
+            $withPivot .= '->withTimestamps()';
+        }
+
+        return <<<PHP
+            /**
+             * The {$method} that belong to the {$this->schema['model']}.
+             */
+            public function {$method}(): BelongsToMany
+            {
+                return \$this->belongsToMany({$relationClass}::class, '{$table}', '{$foreignPivotKey}', '{$relatedPivotKey}'){$withPivot};
+            }
+        PHP;
+    }
+
+    protected function generateHasOneThroughRelation(string $method, string $relationClass, array $relation): string
+    {
+        $through = $relation['through'];
+        $firstKey = $relation['firstKey'] ?? Str::snake($this->schema['model']) . '_id';
+        $secondKey = $relation['secondKey'] ?? Str::snake(class_basename($through)) . '_id';
+        $localKey = $relation['localKey'] ?? 'id';
+        $secondLocalKey = $relation['secondLocalKey'] ?? 'id';
+
+        return <<<PHP
+            /**
+             * Get the {$method} associated with the {$this->schema['model']} through {$through}.
+             */
+            public function {$method}(): HasOneThrough
+            {
+                return \$this->hasOneThrough(
+                    {$relationClass}::class,
+                    {$through}::class,
+                    '{$firstKey}',
+                    '{$secondKey}',
+                    '{$localKey}',
+                    '{$secondLocalKey}'
+                );
+            }
+        PHP;
+    }
+
+    protected function generateHasManyThroughRelation(string $method, string $relationClass, array $relation): string
+    {
+        $through = $relation['through'];
+        $firstKey = $relation['firstKey'] ?? Str::snake($this->schema['model']) . '_id';
+        $secondKey = $relation['secondKey'] ?? Str::snake(class_basename($through)) . '_id';
+        $localKey = $relation['localKey'] ?? 'id';
+        $secondLocalKey = $relation['secondLocalKey'] ?? 'id';
+
+        return <<<PHP
+            /**
+             * Get all {$method} associated with the {$this->schema['model']} through {$through}.
+             */
+            public function {$method}(): HasManyThrough
+            {
+                return \$this->hasManyThrough(
+                    {$relationClass}::class,
+                    {$through}::class,
+                    '{$firstKey}',
+                    '{$secondKey}',
+                    '{$localKey}',
+                    '{$secondLocalKey}'
+                );
+            }
+        PHP;
+    }
+
     protected function generateWithPivot(array $columns): string
     {
         if ($columns === []) {
@@ -227,14 +316,13 @@ class ModelGenerator
         return "->withPivot('".implode("', '", $columns)."')";
     }
 
-    protected function generatePivotTableName(string $first_model, string $second_model): string
+    protected function generatePivotTableName(string $model1, string $model2): string
     {
         $models = [
-            Str::snake($first_model),
-            Str::snake($second_model),
+            Str::snake(Str::plural($model1)),
+            Str::snake(Str::plural($model2))
         ];
         sort($models);
-
         return implode('_', $models);
     }
 }
