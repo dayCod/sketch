@@ -10,35 +10,29 @@
 
 ## Blueprint-Based CRUD Generator for Laravel
 
-Sketch is a powerful, easy-to-use package for rapidly generating CRUD functionality in Laravel applications. With **Sketch**, you can effortlessly define models, migrations, form request validations, and actions, all based on simple YAML blueprints. This package streamlines the development process and ensures consistency across your application.
+Sketch is a powerful Laravel package that transforms your application development workflow. Instead of starting with migrations or models, Sketch allows you to define your entire application structure using simple YAML blueprints. This schema-first approach ensures consistency and accelerates development across your Laravel applications.
 
 ## Features
 
 - 📝 **Blueprint-Based Generation**
-  - Define your application structure using simple YAML blueprints
-  - Generate models, migrations, and actions from a single source
+  - Define your entire application structure in YAML
+  - Generate models, migrations, and services from a single source
   - Maintain consistency across your application components
 
 - ⚡ **Rapid Development**
   - Eliminate repetitive boilerplate code
-  - Generate complete CRUD functionality in seconds
+  - Generate complete application components in seconds
   - Focus on business logic instead of scaffolding
 
 - 🧩 **Built-in Relationships**
-  - Support for all Laravel relationships:
-    - belongsTo
-    - hasOne
-    - hasMany
-    - belongsToMany
+  - Support for all Laravel relationships
   - Automatic foreign key generation
   - Proper relationship method generation
 
-- 🔧 **Modern Laravel Features**
-  - Laravel 11.x support
-  - PHP 8.3 compatibility
-  - Form request validation
-  - Action-based architecture
-  - Soft deletes support
+- 🏗️ **Service Repository Pattern**
+  - Generate service and repository layers
+  - Follow SOLID principles automatically
+  - Maintain clean architecture effortlessly
 
 ## Quick Installation
 
@@ -84,24 +78,69 @@ php artisan sketch:generate --file=schemas/models/blog/post.yaml
 
 After publishing the configuration file, you can modify these settings in `config/sketch.php`:
 ```php
+<?php
+
+declare(strict_types=1);
+
 return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Schema Path Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This value determines where your YAML schema files will be stored.
+    | By default, schemas will be placed in the 'schemas' directory
+    | in the root of your project.
+    |
+    */
     'schemas' => [
         'path' => base_path('schemas'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Output Path Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This value determines where your generated files will be placed.
+    | By default, models will be placed in app/Models,
+    | migrations in database/migrations, and actions in app/Actions.
+    |
+    */
     'paths' => [
         'models' => app_path('Models'),
         'migrations' => database_path('migrations'),
-        'actions' => app_path('Actions'),
         'requests' => app_path('Http/Requests'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Stub Path Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This value determines where your stub files are located.
+    | You can publish these stubs and modify them according to your needs.
+    |
+    */
     'stubs' => [
         'model' => __DIR__.'/../stubs/model.stub',
         'migration' => __DIR__.'/../stubs/migration.stub',
-        'action' => __DIR__.'/../stubs/action.stub',
-        'request' => __DIR__.'/../stubs/request.stub',
+        'request' => __DIR__.'/../stubs/form-request.stub',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Model Namespace
+    |--------------------------------------------------------------------------
+    |
+    | This value determines the default namespace for your models.
+    |
+    */
     'model_namespace' => 'App\\Models',
+
 ];
+
 ```
 
 ## Available Commands
@@ -118,14 +157,17 @@ php artisan sketch:make-blueprint models/blog/post
 php artisan sketch:make-blueprint models/blog/post --soft-delete
 ```
 
-Generate Files:
+### Component Generation
 ```bash
 # Generate from blueprint
-php artisan sketch:generate --file=path/to/schema.yaml
-
-# Force regenerate (override existing files)
-php artisan sketch:generate --file=path/to/schema.yaml --force
+php artisan sketch:generate --file=path/to/schema.yaml [options]
 ```
+
+Generation options:
+- `--force`: Override existing files
+- `--service-repository`: Generate both service and repository layers
+- `--service-only`: Generate service layer only
+- `--repository-only`: Generate repository layer only
 
 ## Testing
 
