@@ -8,7 +8,7 @@
   <a href="https://packagist.org/packages/daycode/sketch"><img src="https://img.shields.io/packagist/l/daycode/sketch" alt="License"></a>
 </p>
 
-## Blueprint-Based CRUD Generator for Laravel
+## Blueprint-Based Structure Generator
 
 Sketch is a powerful Laravel package that transforms your application development workflow. Instead of starting with migrations or models, Sketch allows you to define your entire application structure using simple YAML blueprints. This schema-first approach ensures consistency and accelerates development across your Laravel applications.
 
